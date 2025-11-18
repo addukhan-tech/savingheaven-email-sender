@@ -1,0 +1,13 @@
+{
+  "name": "savingheaven-email-sender",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "node ./api/send-email.js"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.4",
+    "node-fetch": "^2.6.7"
+  }
+}
