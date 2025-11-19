@@ -79,7 +79,8 @@ function htmlTemplate() {
     <!-- BUTTON + LINKS ONLY -->
     <div class="section">
 
-      <a class="cta" href="https://savingheaven.com/collections/black-friday">
+      <!-- UPDATED BUTTON LINK -->
+      <a class="cta" href="https://savingheaven.com/">
         Shop Now 20% OFF Today Only
       </a>
 
@@ -93,9 +94,14 @@ function htmlTemplate() {
         </a>
       </p>
 
-      <p style="margin-top:18px;">
-        <strong>Stay connected:</strong><br>
-        Instagram | Facebook | Pinterest | TikTok
+      <!-- UPDATED SOCIAL LINKS -->
+      <p style="margin-top:22px;"><strong>Stay connected:</strong></p>
+
+      <p style="margin-top:8px;">
+        <a href="https://www.instagram.com/savingheavenll/?utm_source=ig_web_button_share_sheet">Instagram</a> |
+        <a href="https://www.facebook.com/share/1WBLfDXUx4/">Facebook</a> |
+        <a href="https://youtube.com/@savingheaven-e7l?si=NhrJL7uNeTaRuDNZ">YouTube</a> |
+        <a href="https://www.tiktok.com/@savingheaven">TikTok</a>
       </p>
 
       <p class="footer">
@@ -109,6 +115,7 @@ function htmlTemplate() {
 </body>
 </html>`;
 }
+
 
 
 
