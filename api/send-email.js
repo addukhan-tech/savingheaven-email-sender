@@ -22,43 +22,95 @@ function htmlTemplate() {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body { margin:0; padding:0; font-family: Arial, sans-serif; background:#111; color:#fff; }
-    .wrap { max-width:640px; margin:0 auto; }
-    .banner img { width:100%; display:block; }
-    .content { padding:25px; background:#000000aa; }
-    h1 { font-size:32px; }
-    .red { color:#e50914; }
-    a.cta { background:#e50914; color:#fff; padding:12px 20px; text-decoration:none; border-radius:6px; display:inline-block; margin-top:12px; }
+    body {
+      margin:0;
+      padding:0;
+      background:#000;
+      color:#fff;
+      font-family: Arial, sans-serif;
+    }
+    .wrap {
+      max-width:640px;
+      margin:0 auto;
+      background:#000;
+    }
+    .banner img {
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    .section {
+      padding:25px;
+      text-align:center;
+      background:#000;
+      color:#fff;
+    }
+    a.cta {
+      background:#e50914;
+      padding:12px 22px;
+      border-radius:6px;
+      color:#fff;
+      text-decoration:none;
+      font-weight:bold;
+      font-size:16px;
+      display:inline-block;
+      margin-bottom:20px;
+    }
+    a {
+      color:#8ecbff;
+      text-decoration:underline;
+    }
+    .footer {
+      margin-top:20px;
+      font-size:12px;
+      color:#aaa;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="banner">
-      <img src="cid:banner" alt="Black Friday Banner" />
-    </div>
-    <div class="content">
-      <h1><span class="red">BLACK</span> FRIDAY</h1>
-      <p><b>Black Friday:</b> 20% Off Our Signature Luxury Boards</p>
-      <p>Handcrafted from premium woods, finished to perfection, and ready to impress.</p>
-      <p>The perfect gift for your loved ones — elegant, timeless, and built to last.</p>
 
-      <p style="text-align:center;">
-        <a class="cta" href="https://savingheaven.com/collections/black-friday">Shop 20% OFF Today</a>
+  <div class="wrap">
+
+    <!-- TOP IMAGE -->
+    <div class="banner">
+      <img src="cid:banner" alt="Black Friday Banner">
+    </div>
+
+    <!-- BUTTON + LINKS ONLY -->
+    <div class="section">
+
+      <a class="cta" href="https://savingheaven.com/collections/black-friday">
+        Shop Now 20% OFF Today Only
+      </a>
+
+      <p><strong>Order from our Website:</strong><br>
+        <a href="https://savingheaven.com/">https://savingheaven.com/</a>
       </p>
 
-      <p><b>Order from Website:</b><br>
-      <a href="https://savingheaven.com/" style="color:#8ecbff;">savingheaven.com</a></p>
+      <p><strong>Or find us on Amazon:</strong><br>
+        <a href="https://www.amazon.com/stores/SAVINGHEAVENLLC/page/6BFA71E1-7D3E-4912-928D-E732A5889A51">
+          Amazon Store Link
+        </a>
+      </p>
 
-      <p><b>Amazon:</b><br>
-      <a href="https://www.amazon.com/stores/SAVINGHEAVENLLC/page/6BFA71E1-7D3E-4912-928D-E732A5889A51" style="color:#8ecbff;">Amazon Store</a></p>
+      <p style="margin-top:18px;">
+        <strong>Stay connected:</strong><br>
+        Instagram | Facebook | Pinterest | TikTok
+      </p>
 
-      <p>Stay connected: Instagram | Facebook | TikTok</p>
-      <p><b>P.S.</b> Offer ends at midnight.</p>
+      <p class="footer">
+        © Saving Heaven 2025. Offer ends at midnight.
+      </p>
+
     </div>
+
   </div>
+
 </body>
 </html>`;
 }
+
+
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
