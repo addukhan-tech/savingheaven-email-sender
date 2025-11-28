@@ -1,6 +1,80 @@
-import fs from "fs";
-import path from "path";
 import nodemailer from "nodemailer";
+
+// 🔥 Your sender accounts
+const SENDERS = [
+  {
+    email: "team@marketing.savingheaven.com",
+    pass: process.env.SMTP_PASS_1,
+    host: "smtp.hostinger.com",
+    port: 587,
+  },
+  {
+    email: "sales@savingheaven.com",
+    pass: process.env.SMTP_PASS_2,
+    host: "smtp.hostinger.com",
+    port: 587,
+  },
+  {
+    email: "sales@offers.savingheaven.com",
+    pass: process.env.SMTP_PASS_3,
+    host: "smtp.hostinger.com",
+    port: 587,
+  },
+  {
+    email: "olivia@offers.savingheaven.com",
+    pass: process.env.SMTP_PASS_4,
+    host: "smtp.hostinger.com",
+    port: 587,
+  },
+  {
+    email: "ella@offers.savingheaven.com",
+    pass: process.env.SMTP_PASS_5,
+    host: "smtp.hostinger.com",
+    port: 587,
+  },
+  {
+    email: "sophia@offers.savingheaven.com",
+    pass: process.env.SMTP_PASS_6,
+    host: "smtp.hostinger.com",
+    port: 587,
+  }
+];
+
+// In-memory logs
+let rotationLog = SENDERS.map(s => ({
+  email: s.email,
+  sentToday: 0
+}));
+
+// 🔥 Track last reset date
+let lastResetDate = new Date().toDateString();
+
+// 🔥 Reset if the day changed
+function dailyResetCheck() {
+  const today = new Date().toDateString();
+  if (today !== lastResetDate) {
+    rotationLog = SENDERS.map(s => ({
+      email: s.email,
+      sentToday: 0
+    }));
+    lastResetDate = today;
+    console.log("🔥 Daily email counters reset!");
+  }
+}
+
+// 🔥 Select sender (after reset check)
+function getAvailableSender() {
+  dailyResetCheck();
+
+  for (let sender of rotationLog) {
+    if (sender.sentToday < 15) {
+      sender.sentToday++;
+      return sender.email;
+    }
+  }
+
+  return null;
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -9,87 +83,48 @@ export default async function handler(req, res) {
 
   const { to, subject, html } = req.body;
 
-  if (!to) return res.status(400).json({ error: "Recipient missing" });
-
-  // Load send log
-  const logPath = path.join(process.cwd(), "send-log.json");
-  let log = JSON.parse(fs.readFileSync(logPath, "utf8"));
-
-  // Reset counts daily
-  const today = new Date().toISOString().slice(0, 10);
-  if (log.date !== today) {
-    for (const key in log) {
-      if (key !== "date") log[key] = 0;
-    }
-    log.date = today;
+  if (!to || !subject || !html) {
+    return res.status(400).json({ error: "Missing fields" });
   }
 
-  // SMTP accounts (you will add passwords here)
-  const accounts = [
-    {
-      email: "team@marketing.savingheaven.com",
-      pass: process.env.PASS1,
-    },
-    {
-      email: "sales@savingheaven.com",
-      pass: process.env.PASS2,
-    },
-    {
-      email: "sales@offers.savingheaven.com",
-      pass: process.env.PASS3,
-    },
-    {
-      email: "olivia@offers.savingheaven.com",
-      pass: process.env.PASS4,
-    },
-    {
-      email: "ella@offers.savingheaven.com",
-      pass: process.env.PASS5,
-    },
-    {
-      email: "sophia@offers.savingheaven.com",
-      pass: process.env.PASS6,
-    },
-  ];
+  // Select sender
+  const selectedEmail = getAvailableSender();
 
-  // Find first sender with less than 15 emails today
-  const sender = accounts.find(acc => log[acc.email] < 15);
-
-  if (!sender) {
-    return res.status(429).json({ error: "Daily email limit reached" });
+  if (!selectedEmail) {
+    return res.status(429).json({
+      error: "All sender accounts reached 15 emails/day"
+    });
   }
 
-  // Nodemailer SMTP
+  const accountConfig = SENDERS.find(s => s.email === selectedEmail);
+
   const transporter = nodemailer.createTransport({
-    host: "smtp.hostinger.com",
-    port: 587,
-    secure: false,
+    host: accountConfig.host,
+    port: accountConfig.port,
     auth: {
-      user: sender.email,
-      pass: sender.pass,
-    },
+      user: accountConfig.email,
+      pass: accountConfig.pass
+    }
   });
 
   try {
     await transporter.sendMail({
-      from: sender.email,
+      from: accountConfig.email,
       to,
       subject,
       html,
     });
 
-    // Increase counter
-    log[sender.email] += 1;
+    const log = rotationLog.find(s => s.email === selectedEmail);
 
-    // Save log
-    fs.writeFileSync(logPath, JSON.stringify(log, null, 2));
-
-    return res.json({
+    return res.status(200).json({
       message: "Email sent",
-      using: sender.email,
-      sentToday: log[sender.email],
+      using: selectedEmail,
+      sentToday: log.sentToday
     });
-  } catch (e) {
-    return res.status(500).json({ error: e.toString() });
+
+  } catch (err) {
+    console.log("Email Error:", err);
+    return res.status(500).json({ error: err.message });
   }
 }
