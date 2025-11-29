@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 
-// 🔥 Your sender accounts
 const SENDERS = [
   {
     email: "team@marketing.savingheaven.com",
@@ -40,40 +39,21 @@ const SENDERS = [
   }
 ];
 
-// In-memory logs
-let rotationLog = SENDERS.map(s => ({
-  email: s.email,
-  sentToday: 0
-}));
+// 🔥 ROUND ROBIN INDEX
+let currentIndex = 0;
 
-// 🔥 Track last reset date
-let lastResetDate = new Date().toDateString();
+function getNextSender() {
+  const sender = SENDERS[currentIndex];
 
-// 🔥 Reset if the day changed
-function dailyResetCheck() {
-  const today = new Date().toDateString();
-  if (today !== lastResetDate) {
-    rotationLog = SENDERS.map(s => ({
-      email: s.email,
-      sentToday: 0
-    }));
-    lastResetDate = today;
-    console.log("🔥 Daily email counters reset!");
-  }
-}
+  // Move to next index
+  currentIndex++;
 
-// 🔥 Select sender (after reset check)
-function getAvailableSender() {
-  dailyResetCheck();
-
-  for (let sender of rotationLog) {
-    if (sender.sentToday < 15) {
-      sender.sentToday++;
-      return sender.email;
-    }
+  // If index reaches 6 → reset to 0
+  if (currentIndex >= SENDERS.length) {
+    currentIndex = 0;
   }
 
-  return null;
+  return sender;
 }
 
 export default async function handler(req, res) {
@@ -87,44 +67,32 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing fields" });
   }
 
-  // Select sender
-  const selectedEmail = getAvailableSender();
-
-  if (!selectedEmail) {
-    return res.status(429).json({
-      error: "All sender accounts reached 15 emails/day"
-    });
-  }
-
-  const accountConfig = SENDERS.find(s => s.email === selectedEmail);
+  // 🔥 pick next sender in rotation
+  const sender = getNextSender();
 
   const transporter = nodemailer.createTransport({
-    host: accountConfig.host,
-    port: accountConfig.port,
+    host: sender.host,
+    port: sender.port,
     auth: {
-      user: accountConfig.email,
-      pass: accountConfig.pass
+      user: sender.email,
+      pass: sender.pass
     }
   });
 
   try {
     await transporter.sendMail({
-      from: accountConfig.email,
+      from: sender.email,
       to,
       subject,
       html,
     });
 
-    const log = rotationLog.find(s => s.email === selectedEmail);
-
     return res.status(200).json({
       message: "Email sent",
-      using: selectedEmail,
-      sentToday: log.sentToday
+      using: sender.email
     });
 
   } catch (err) {
-    console.log("Email Error:", err);
     return res.status(500).json({ error: err.message });
   }
 }
